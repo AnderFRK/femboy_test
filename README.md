@@ -26,7 +26,7 @@ Un test interactivo hecho con ReactJS para descubrir qué tanto potencial tienes
 ## 🛠 Tecnologías
 
 - ReactJS
-- CSS / Tailwind (opcional)
+- CSS / Tailwind
 - Vite
 - JavaScript
 
