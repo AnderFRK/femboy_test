@@ -1,4 +1,4 @@
-# 🎀 Femboy Potential Test
+# 🎀 Femboy Test
 
 Un test interactivo hecho con ReactJS para descubrir qué tanto potencial tienes de convertirte en un auténtico femboy ✨.
 
