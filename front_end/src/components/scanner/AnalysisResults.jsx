@@ -47,7 +47,7 @@ export default function AnalysisResults({ femPercentage, mascPercentage }) {
   return (
     <div className="w-full mt-6 flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       
-      {/* BARRA FEMENINA */}
+      {/* --- BARRA FEMENINA --- */}
       <div className="flex flex-col gap-2">
         <div className="flex justify-between text-sm font-bold px-2">
           <span className="text-pink-500">Nivel Femenino</span>
@@ -61,13 +61,14 @@ export default function AnalysisResults({ femPercentage, mascPercentage }) {
           >
             <img 
               src="/tomoko.png" 
-              alt="Femcel" 
-              className="absolute -right-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border-2 border-white shadow-lg bg-white object-cover z-10"
+              alt="Femenino" 
+              className="absolute -right-5 top-1/2 -translate-y-1/2 w-10 h-10 max-w-none rounded-full border-2 border-white shadow-lg bg-white object-cover z-10"
             />
           </div>
         </div>
       </div>
-        {/* BARRA MASCULINA */} 
+
+      {/* --- BARRA MASCULINA --- */}
       <div className="flex flex-col gap-2">
         <div className="flex justify-between text-sm font-bold px-2">
           <span className="text-[#c2dafd] text-slate-700">Nivel Masculino</span>
@@ -81,12 +82,14 @@ export default function AnalysisResults({ femPercentage, mascPercentage }) {
           >
             <img 
               src="/gigachad.jpg" 
-              alt="Gigachad" 
-              className="absolute -right-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border-2 border-white shadow-lg bg-white object-cover z-10"
+              alt="Masculino" 
+              className="absolute -right-5 top-1/2 -translate-y-1/2 w-10 h-10 max-w-none rounded-full border-2 border-white shadow-lg bg-white object-cover z-10"
             />
           </div>
         </div>
       </div>
+
+      {/* --- DESCRIPCIÓN DINÁMICA --- */}
       <div className={`mt-4 rounded-2xl border-2 p-5 shadow-sm transition-colors duration-1000 ${
         femPercentage >= 95 ? "bg-red-500/10 border-red-500" : "bg-slate-50 border-[#e0c9f7]"
       }`}>
@@ -97,7 +100,7 @@ export default function AnalysisResults({ femPercentage, mascPercentage }) {
         </p>
       </div>
 
-      {/* IMAGEN DINÁMICA FINAL */}
+      {/* --- IMAGEN DINÁMICA FINAL --- */}
       <div className="flex justify-center mt-2 animate-in zoom-in duration-700 delay-500">
         <img 
           src={getFinalImage()} 
