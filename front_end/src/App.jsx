@@ -8,8 +8,7 @@ export default function App() {
       <div className="fixed inset-0 z-0 pointer-events-none bg-[url('/background_femboy.png')] bg-cover bg-center bg-no-repeat opacity-70 mix-blend-multiply"></div>
       <div className="relative z-10">
         <Navbar />
-        <main className="flex w-full items-start justify-center px-4 pt-24 pb-12">
-          <div className="relative hidden h-[80vh] flex-1 sm:block sticky top-20 pointer-events-none">
+        <main className="flex w-full items-start justify-center px-4 pt-20 pb-4">          <div className="relative hidden h-[80vh] flex-1 sm:block sticky top-20 pointer-events-none">
             <SakuraRain id="tsparticles-left" />
           </div>
           <div className="w-full max-w-2xl shrink-0 mx-4">
