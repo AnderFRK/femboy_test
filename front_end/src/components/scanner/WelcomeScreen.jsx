@@ -1,28 +1,32 @@
 export default function WelcomeScreen({ onStart }) {
   return (
-    <div className="w-full max-w-2xl rounded-3xl border border-neutral-800 bg-neutral-900/50 p-8 sm:p-12 shadow-2xl backdrop-blur-sm text-center">
-      <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-pink-500/20 text-4xl">
+    // Tarjeta blanca pura con sombra suave y borde rosa
+    <div className="w-full max-w-2xl rounded-3xl border-4 border-[#f7c9f2] bg-white p-8 sm:p-12 shadow-xl text-center z-10 relative">
+      
+      <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-[#c2dafd] text-4xl shadow-sm">
         ✨
       </div>
-      <h2 className="mb-4 text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
-        Femboy<span className="text-pink-400">Test</span>
-      </h2>
       
-      <div className="mb-8 space-y-4 text-neutral-300 text-lg">
+      <h2 className="mb-4 text-4xl sm:text-5xl font-black tracking-tight text-slate-900">
+        Femboy<span className="text-pink-500">Test</span>
+      </h2>
+      <div className="mb-8 space-y-4 text-slate-700 text-lg font-medium">
         <p>
           ¿Alguna vez te has preguntado qué porcentaje de tus facciones se inclinan hacia lo femenino?
         </p>
         <p>
-          Este escáner utiliza Inteligencia Artificial (Redes Neuronales de Visión Computacional) para analizar las proporciones geométricas de tu rostro.
+          Este escáner utiliza Inteligencia Artificial para analizar las proporciones geométricas de tu rostro.
         </p>
-        <div className="rounded-xl bg-black/30 p-4 border border-neutral-800 text-sm text-neutral-400 mt-6">
-          🔒 <strong className="text-pink-300">Privacidad 100% garantizada:</strong> El análisis se procesa directamente en tu dispositivo. Ninguna foto es enviada a servidores externos.
+        
+        {/* El texto aquí debe ser slate-800 o slate-900 */}
+        <div className="rounded-xl bg-[#c2dafd]/30 p-4 border-2 border-[#c2dafd] text-sm text-slate-800 mt-6">
+          🔒 <strong className="text-slate-900">Privacidad 100% garantizada:</strong> El análisis se procesa en tu dispositivo. Ninguna foto es enviada a internet.
         </div>
       </div>
-
+      {/* Botón rosa claro que cambia a azul al pasar el mouse */}
       <button 
         onClick={onStart}
-        className="w-full sm:w-auto rounded-xl bg-pink-600 px-10 py-4 font-bold text-lg text-white shadow-lg transition-all hover:bg-pink-500 hover:-translate-y-1 hover:shadow-pink-500/25 cursor-pointer"
+        className="w-full sm:w-auto rounded-xl bg-[#f7c9f2] px-10 py-4 font-bold text-lg text-slate-800 shadow-md transition-all hover:bg-[#c2dafd] hover:-translate-y-1 cursor-pointer"
       >
         Empezar Test y Encender Cámara
       </button>

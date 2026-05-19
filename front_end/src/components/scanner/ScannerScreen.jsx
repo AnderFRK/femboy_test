@@ -1,31 +1,53 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useFaceMorphAnalyzer } from '../../hooks/useFaceMorphAnalyzer';
+import AnalysisResults from './AnalysisResults';
+import FemboySpinner from '../ui/FemboySpinner';
 
 export default function ScannerScreen() {
   const videoRef = useRef(null);
   const { isModelLoaded, result, isScanning, analyzeFace, resetScanner } = useFaceMorphAnalyzer(videoRef);
+  
+  const [isResetting, setIsResetting] = useState(false);
+
   useEffect(() => {
-    if (isModelLoaded) {
+    // Ya no dependemos de isResetting para encender la cámara, solo del modelo
+    if (isModelLoaded && !result) {
       navigator.mediaDevices.getUserMedia({ video: true })
         .then((stream) => { 
           if (videoRef.current) videoRef.current.srcObject = stream; 
         })
         .catch((err) => console.error("Error de cámara:", err));
     }
-  }, [isModelLoaded]);
+  }, [isModelLoaded, result]);
+
+  const handleReset = () => {
+    setIsResetting(true); 
+    
+    setTimeout(() => {
+      resetScanner();      
+      setIsResetting(false); 
+    }, 1200); 
+  };
 
   return (
-    <div className="w-full max-w-2xl rounded-3xl border border-neutral-800 bg-neutral-900/50 p-6 sm:p-10 shadow-2xl backdrop-blur-sm flex flex-col items-center text-center">
+    <div className="w-full max-w-2xl rounded-3xl border-4 border-[#f7c9f2] bg-white p-6 sm:p-10 shadow-xl flex flex-col items-center text-center z-10 relative">
+      
       {!isModelLoaded ? (
-        <div className="flex flex-col items-center gap-4 py-20">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-pink-500 border-t-transparent"></div>
-          <p className="text-xl text-pink-300 font-medium tracking-wide">Cargando motor neuronal...</p>
+        <div className="py-12">
+          <FemboySpinner text="inicializando IA" />
         </div>
       ) : (
         <div className="flex w-full flex-col items-center gap-6">
-          <p className="text-neutral-400 font-medium">Mira fijamente a la cámara y asegúrate de tener buena luz.</p>
+          {!result && !isResetting && (
+            <p className="text-slate-600 font-bold">Mira fijamente a la cámara y asegúrate de tener buena luz.</p>
+          )}
           
-          <div className="relative w-full max-w-[480px] overflow-hidden rounded-2xl border-4 border-neutral-800 bg-black shadow-[0_0_40px_-15px_rgba(236,72,153,0.3)]">
+          {isResetting && (
+            <div className="py-10">
+              <FemboySpinner text="reiniciando cámara" />
+            </div>
+          )}
+          <div className={`relative w-full max-w-[480px] overflow-hidden rounded-2xl border-4 border-[#c2dafd] bg-slate-100 shadow-md ${(result || isResetting) ? 'hidden' : 'block'}`}>
             <video 
               ref={videoRef} 
               autoPlay 
@@ -35,32 +57,51 @@ export default function ScannerScreen() {
             />
           </div>
 
+          {/* --- INTERFAZ DINÁMICA DE BOTONES Y EVENTOS --- */}
           {!result ? (
-            <button 
-              onClick={analyzeFace}
-              disabled={isScanning}
-              className={`group relative w-full sm:w-auto overflow-hidden rounded-xl px-8 py-4 font-bold text-lg text-white shadow-lg transition-all ${
-                isScanning ? 'bg-neutral-600 cursor-wait' : 'bg-pink-600 hover:bg-pink-500 hover:-translate-y-1 hover:shadow-pink-500/25 cursor-pointer'
-              }`}
-            >
-              {isScanning ? 'Analizando facciones...' : '📸 Tomar Foto y Escanear'}
-            </button>
-          ) : (
-            <button 
-              onClick={resetScanner}
-              className="w-full sm:w-auto rounded-xl border border-neutral-600 bg-transparent px-8 py-4 font-bold text-lg text-white transition-colors hover:bg-neutral-800 cursor-pointer"
-            >
-              🔄 Intentar con otra foto
-            </button>
-          )}
-
-          {result && (
-            <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="rounded-2xl border border-pink-500/30 bg-pink-500/10 p-6 shadow-inner">
-                <p className="text-2xl sm:text-3xl font-black text-pink-200">
-                  {result}
-                </p>
+            isScanning ? (
+              <div className="py-4">
+                <FemboySpinner text="analizando rostro" />
               </div>
+            ) : !isResetting && (
+              <button 
+                onClick={analyzeFace}
+                className="w-full sm:w-auto rounded-xl bg-[#f7c9f2] px-10 py-4 font-bold text-lg text-slate-800 shadow-md transition-all hover:bg-[#c2dafd] hover:-translate-y-1 cursor-pointer"
+              >
+                📸 Tomar Foto y Escanear
+              </button>
+            )
+          ) : (
+            !isResetting && (
+              <button 
+                onClick={handleReset}
+                className="w-full sm:w-auto rounded-xl border-2 border-[#c2dafd] bg-white px-8 py-4 font-bold text-lg text-slate-700 transition-colors hover:bg-[#c2dafd]/20 cursor-pointer mb-2"
+              >
+                🔄 Intentar con otra foto
+              </button>
+            )
+          )}
+          {result && !isResetting && (
+            <div className="w-full text-left animate-in zoom-in duration-500">
+              {result.success ? (
+                <>
+                  <h3 className="text-2xl font-black text-slate-800 text-center mb-2">
+                    Resultados del Escáner
+                  </h3>
+                  <AnalysisResults 
+                    femPercentage={result.fem} 
+                    mascPercentage={result.masc} 
+                  />
+                </>
+              ) : (
+                <div className="rounded-2xl border-4 border-red-300 bg-red-50 p-6 text-center mt-4 shadow-sm">
+                  <span className="text-4xl block mb-3">Hmmm...?</span>
+                  <p className="text-lg font-bold text-red-600">
+                    {result.message}
+                  </p>
+                </div>
+              )}
+              
             </div>
           )}
         </div>
