@@ -1,13 +1,59 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { useFaceMorphAnalyzer } from '../../hooks/useFaceMorphAnalyzer';
+import useUserIdentity from '../../hooks/useUserIdentity';
+import useAnalysisHistory from '../../hooks/useAnalysisHistory';
 import AnalysisResults from './AnalysisResults';
 import FemboySpinner from '../ui/FemboySpinner';
+
+function getResultDescription(femPercentage) {
+  if (femPercentage >= 95) return '¡ALERTA DE IMPOSTOR! ඞ Nivel sospechosamente alto.';
+  if (femPercentage >= 80) return '¡Nivel extremo! 💅 Eres prácticamente la realeza Femboy.';
+  if (femPercentage >= 60) return '¡Súper cute! 🌸 Tus facciones se inclinan hacia lo femenino.';
+  if (femPercentage >= 40) return '¡Equilibrio andrógino! ⚖️✨';
+  if (femPercentage >= 20) return 'Tus facciones se inclinan más hacia lo masculino. 🔹';
+  return '¡Full Masculino! 🗿';
+}
+
+function getResultImage(femPercentage, mascPercentage) {
+  if (femPercentage >= 95) return '/sus.gif';
+  if (femPercentage > mascPercentage) return '/kissingboy.gif';
+  return '/gigachad.jpg';
+}
 
 export default function ScannerScreen() {
   const videoRef = useRef(null);
   const { isModelLoaded, result, isScanning, analyzeFace, resetScanner } = useFaceMorphAnalyzer(videoRef);
+  const { usuario } = useUserIdentity();
+  const { guardarAnalisis } = useAnalysisHistory();
   
   const [isResetting, setIsResetting] = useState(false);
+  const analisisGuardadoRef = useRef(false);
+
+  useEffect(() => {
+    if (result?.success && usuario?.id && !analisisGuardadoRef.current) {
+      analisisGuardadoRef.current = true;
+      guardarAnalisis(usuario.id, {
+        femPercentage: result.fem,
+        mascPercentage: result.masc,
+        success: true,
+        description: getResultDescription(result.fem),
+        resultImage: getResultImage(result.fem, result.masc),
+        supabaseUserId: usuario.supabaseUserId || null,
+      });
+    }
+    if (result && !result.success) {
+      analisisGuardadoRef.current = true;
+    }
+  }, [result, usuario.id, guardarAnalisis]);
+
+  const handleReset = () => {
+    setIsResetting(true);
+    analisisGuardadoRef.current = false;
+    setTimeout(() => {
+      resetScanner();      
+      setIsResetting(false); 
+    }, 1200); 
+  };
 
   useEffect(() => {
     if (isModelLoaded && !result) {
@@ -18,15 +64,6 @@ export default function ScannerScreen() {
         .catch((err) => console.error("Error de cámara:", err));
     }
   }, [isModelLoaded, result]);
-
-  const handleReset = () => {
-    setIsResetting(true); 
-    
-    setTimeout(() => {
-      resetScanner();      
-      setIsResetting(false); 
-    }, 1200); 
-  };
 
   return (
     <div className="w-full max-w-2xl rounded-3xl border-4 border-[#f7c9f2] bg-white p-6 sm:p-10 shadow-xl flex flex-col justify-between z-10 relative min-h-[calc(100vh-6rem)] text-center">
