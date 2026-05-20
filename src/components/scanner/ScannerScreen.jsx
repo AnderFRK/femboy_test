@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { Camera, RefreshCw } from 'lucide-react'; // <-- Agregamos los iconos aquí
 import { useFaceMorphAnalyzer } from '../../hooks/useFaceMorphAnalyzer';
 import useUserIdentity from '../../hooks/useUserIdentity';
 import useAnalysisHistory from '../../hooks/useAnalysisHistory';
@@ -102,18 +103,22 @@ export default function ScannerScreen() {
               ) : !isResetting && (
                 <button 
                   onClick={analyzeFace}
-                  className="w-full sm:w-auto rounded-xl bg-[#f7c9f2] px-10 py-4 font-bold text-lg text-slate-800 shadow-md transition-all hover:bg-[#c2dafd] hover:-translate-y-1 cursor-pointer"
+                  // Le agregamos flex y gap para alinear el icono con el texto
+                  className="w-full sm:w-auto rounded-xl bg-[#f7c9f2] px-10 py-4 font-bold text-lg text-slate-800 shadow-md transition-all hover:bg-[#c2dafd] hover:-translate-y-1 cursor-pointer flex items-center justify-center gap-2"
                 >
-                  📸 Tomar Foto y Escanear
+                  <Camera className="h-5 w-5" />
+                  Tomar Foto y Escanear
                 </button>
               )
             ) : (
               !isResetting && (
                 <button 
                   onClick={handleReset}
-                  className="w-full sm:w-auto rounded-xl border-2 border-[#c2dafd] bg-white px-8 py-4 font-bold text-lg text-slate-700 transition-colors hover:bg-[#c2dafd]/20 cursor-pointer mb-2"
+                  // Le agregamos flex y gap para alinear el icono con el texto
+                  className="w-full sm:w-auto rounded-xl border-2 border-[#c2dafd] bg-white px-8 py-4 font-bold text-lg text-slate-700 transition-colors hover:bg-[#c2dafd]/20 cursor-pointer mb-2 flex items-center justify-center gap-2"
                 >
-                  🔄 Intentar con otra foto
+                  <RefreshCw className="h-5 w-5 text-[#c2dafd]" />
+                  Intentar con otra foto
                 </button>
               )
             )}
@@ -131,7 +136,7 @@ export default function ScannerScreen() {
                   </>
                 ) : (
                   <div className="rounded-2xl border-4 border-red-300 bg-red-50 p-6 text-center mt-4 shadow-sm">
-                    <span className="text-4xl block mb-3">🤔</span>
+                    <span className="text-4xl block mb-3">Hmmmm...?</span>
                     <p className="text-lg font-bold text-red-600">
                       {result.message}
                     </p>

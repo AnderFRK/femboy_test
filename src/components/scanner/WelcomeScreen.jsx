@@ -1,9 +1,15 @@
+import { ShieldCheck, Sparkles } from 'lucide-react';
+
 export default function WelcomeScreen({ onStart }) {
   return (
-    <div className="w-full max-w-2xl rounded-3xl border-4 border-[#f7c9f2] bg-white p-8 sm:p-12 shadow-xl flex flex-col justify-between z-10 relative min-h-[calc(100vh-9rem)]">
+    <div className="w-full max-w-2xl rounded-3xl border-4 border-[#f7c9f2] bg-white p-8 sm:p-12 shadow-xl flex flex-col justify-between z-10 relative min-h-[calc(100vh-6rem)]">
       <div className="flex-1 flex flex-col items-center justify-center text-center">
-        <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-[#c2dafd] text-4xl shadow-sm">
-          ✨
+        <div className="mb-6 animate-in zoom-in duration-500">
+          <img 
+            src="/astolfo.png" 
+            alt="Logo FemboyTest" 
+            className="h-28 w-28 object-contain drop-shadow-xl"
+          />
         </div>
         
         <h2 className="mb-4 text-4xl sm:text-5xl font-black tracking-tight text-slate-900">
@@ -18,8 +24,13 @@ export default function WelcomeScreen({ onStart }) {
             Este escáner utiliza Inteligencia Artificial para analizar las proporciones geométricas de tu rostro.
           </p>
           
-          <div className="rounded-xl bg-[#c2dafd]/30 p-4 border-2 border-[#c2dafd] text-sm text-slate-800 mt-6 shadow-sm">
-            🔒 <strong className="text-slate-900">Privacidad 100% garantizada:</strong> El análisis se procesa en tu dispositivo. Ninguna foto es enviada a internet.
+          <div className="flex items-center justify-center gap-3 rounded-xl bg-[#c2dafd]/30 p-4 border-2 border-[#c2dafd] text-sm text-slate-800 mt-6 shadow-sm text-left">
+            <div className="shrink-0 text-slate-700 bg-white p-2 rounded-full shadow-sm">
+              <ShieldCheck className="h-6 w-6" />
+            </div>
+            <p>
+              <strong className="text-slate-900">Privacidad 100% garantizada:</strong> El análisis se procesa en tu dispositivo. Ninguna foto es enviada a internet.
+            </p>
           </div>
         </div>
 
@@ -30,9 +41,12 @@ export default function WelcomeScreen({ onStart }) {
           Empezar Test y Encender Cámara
         </button>
       </div>
+
       <footer className="mt-12 w-full border-t-2 border-[#f7c9f2]/50 pt-6 text-center">
-        <p className="text-sm font-bold text-slate-400">
-          Desarrollado con ✨ para la comunidad.
+        <p className="text-sm font-bold text-slate-400 flex items-center justify-center gap-1.5">
+          Desarrollado con 
+          <Sparkles className="h-4 w-4 text-pink-400" /> 
+          para la comunidad.
         </p>
         <p className="text-xs font-medium text-slate-400/80 mt-1">
           v1.0.0 • IA Local
