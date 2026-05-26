@@ -7,6 +7,7 @@ import Footer from "./components/layout/Footer";
 import LoginModal from "./components/layout/LoginModal";
 import SettingsModal from "./components/layout/SettingsModal";
 import TestView from "./pages/TestView";
+import Battle from "./pages/Battle";
 import Donate from "./pages/Donate";
 import useUserIdentity from "./hooks/useUserIdentity";
 
@@ -29,6 +30,7 @@ export default function App() {
             <div className="w-full max-w-2xl shrink-0 mx-4">
               <Routes>
                 <Route path="/" element={<TestView />} />
+                <Route path="/batalla" element={<Battle />} />
                 <Route path="/donar" element={<Donate />} />
               </Routes>
             </div>
