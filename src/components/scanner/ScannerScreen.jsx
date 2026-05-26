@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Camera, RefreshCw } from 'lucide-react'; // <-- Agregamos los iconos aquí
 import { useFaceMorphAnalyzer } from '../../hooks/useFaceMorphAnalyzer';
 import useUserIdentity from '../../hooks/useUserIdentity';
@@ -45,7 +45,7 @@ export default function ScannerScreen() {
     if (result && !result.success) {
       analisisGuardadoRef.current = true;
     }
-  }, [result, usuario.id, guardarAnalisis]);
+  }, [result, usuario.id, usuario.supabaseUserId, guardarAnalisis]);
 
   const handleReset = () => {
     setIsResetting(true);

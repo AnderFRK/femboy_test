@@ -127,3 +127,36 @@ CREATE POLICY "select_history" ON analysis_history
 CREATE POLICY "delete_history" ON analysis_history
   FOR DELETE TO authenticated
   USING (auth.uid() = supabase_user_id);
+
+-- ============================================================
+-- TABLA: battle_queue (para matchmaking 1vs1)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS battle_queue (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  local_id TEXT NOT NULL,
+  nickname TEXT NOT NULL,
+  status TEXT DEFAULT 'waiting' CHECK (status IN ('waiting', 'matched', 'cancelled')),
+  matched_with TEXT,
+  matched_nickname TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_battle_queue_status ON battle_queue(status, created_at);
+
+ALTER TABLE battle_queue ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "insert_battle_queue" ON battle_queue
+  FOR INSERT TO anon, authenticated
+  WITH CHECK (true);
+
+CREATE POLICY "select_battle_queue" ON battle_queue
+  FOR SELECT TO anon, authenticated
+  USING (true);
+
+CREATE POLICY "update_battle_queue" ON battle_queue
+  FOR UPDATE TO anon, authenticated
+  USING (true);
+
+CREATE POLICY "delete_battle_queue" ON battle_queue
+  FOR DELETE TO anon, authenticated
+  USING (true);

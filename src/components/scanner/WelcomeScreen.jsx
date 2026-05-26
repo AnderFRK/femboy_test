@@ -1,6 +1,6 @@
-import { ShieldCheck, Sparkles } from 'lucide-react';
+import { ShieldCheck, Sparkles, Swords } from 'lucide-react';
 
-export default function WelcomeScreen({ onStart }) {
+export default function WelcomeScreen({ onStart, onBattle }) {
   return (
     <div className="w-full max-w-2xl rounded-3xl border-4 border-[#f7c9f2] bg-white p-8 sm:p-12 shadow-xl flex flex-col justify-between z-10 relative min-h-[calc(100vh-6rem)]">
       <div className="flex-1 flex flex-col items-center justify-center text-center">
@@ -34,12 +34,24 @@ export default function WelcomeScreen({ onStart }) {
           </div>
         </div>
 
-        <button 
-          onClick={onStart}
-          className="w-full sm:w-auto rounded-xl bg-[#f7c9f2] px-10 py-4 font-bold text-lg text-slate-800 shadow-md transition-all hover:bg-[#c2dafd] hover:-translate-y-1 cursor-pointer"
-        >
-          Empezar Test y Encender Cámara
-        </button>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button 
+            onClick={onStart}
+            className="rounded-xl bg-[#f7c9f2] px-10 py-4 font-bold text-lg text-slate-800 shadow-md transition-all hover:bg-[#c2dafd] hover:-translate-y-1 cursor-pointer"
+          >
+            📷 Empezar Test
+          </button>
+
+          {onBattle && (
+            <button
+              onClick={onBattle}
+              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-pink-400 to-pink-500 px-8 py-4 font-bold text-lg text-white shadow-md transition-all hover:scale-105 hover:shadow-xl cursor-pointer"
+            >
+              <Swords className="h-5 w-5" />
+              Batalla 1vs1
+            </button>
+          )}
+        </div>
       </div>
 
       <footer className="mt-12 w-full border-t-2 border-[#f7c9f2]/50 pt-6 text-center">
