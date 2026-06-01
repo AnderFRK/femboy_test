@@ -35,8 +35,8 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
   const cleanup = useCallback(() => {
     const s = r.current;
     s.ended = true;
-    s.cleanupAnalysis?.();
-    s.cleanupTimer?.();
+    s.cleanupAnalysis?.(); 
+    if (s.cleanupTimer) clearInterval(s.cleanupTimer); // CORRECCIÓN AQUÍ
     s.localStream?.getTracks().forEach(t => t.stop());
     s.pc?.close();
     s.channel?.unsubscribe();
@@ -62,7 +62,7 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
     if (s.ended) return;
     s.ended = true;
     s.cleanupAnalysis?.();
-    s.cleanupTimer?.();
+    if (s.cleanupTimer) clearInterval(s.cleanupTimer); // CORRECCIÓN AQUÍ
 
     const myAvg = Math.round(s.myScores.reduce((a, b) => a + b, 0) / Math.max(s.myScores.length, 1));
     const oppAvg = Math.round(s.oppScores.reduce((a, b) => a + b, 0) / Math.max(s.oppScores.length, 1));
@@ -107,6 +107,7 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
     }, 500);
 
     let remaining = BATTLE_DURATION;
+    // AQUÍ SE GUARDA EL ID DEL INTERVALO
     s.cleanupTimer = setInterval(() => {
       remaining--;
       setTimer(remaining);
@@ -181,7 +182,7 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
       if (s.ended) return;
       s.ended = true;
       s.cleanupAnalysis?.();
-      s.cleanupTimer?.();
+      if (s.cleanupTimer) clearInterval(s.cleanupTimer); // CORRECCIÓN AQUÍ
 
       const myAvg = Math.round(s.myScores.reduce((a, b) => a + b, 0) / Math.max(s.myScores.length, 1));
       const oppAvg = Math.round(payload.myAvg);

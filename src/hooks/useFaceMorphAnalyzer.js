@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as faceapi from '@vladmandic/face-api';
+// 1. Importamos la función para decirle a TF de dónde bajar WASM
+import { setWasmPaths } from '@tensorflow/tfjs-backend-wasm'; 
 
 export function useFaceMorphAnalyzer(videoRef) {
   const [isModelLoaded, setIsModelLoaded] = useState(false);
@@ -9,15 +11,27 @@ export function useFaceMorphAnalyzer(videoRef) {
   useEffect(() => {
     const loadModels = async () => {
       try {
+        // 2. Le decimos que si necesita WASM, lo baje de internet, no del proyecto local
+        setWasmPaths('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm/dist/');
+
         try {
           await faceapi.tf.setBackend('webgl');
           await faceapi.tf.ready();
           console.log("✅ Motor WebGL activado (Rápido)");
         } catch {
-          console.warn("⚠️ WebGL no soportado, cambiando a CPU...");
-          await faceapi.tf.setBackend('cpu');
-          await faceapi.tf.ready();
-          console.log("✅ Motor CPU activado (Seguro)");
+          console.warn("⚠️ WebGL no soportado, probando WASM o CPU...");
+          
+          try {
+            // 3. Intentamos usar WASM como plan B antes de usar CPU (es más rápido)
+            await faceapi.tf.setBackend('wasm');
+            await faceapi.tf.ready();
+            console.log("✅ Motor WASM activado (Respaldo)");
+          } catch {
+             console.warn("⚠️ WASM falló, cambiando a CPU...");
+             await faceapi.tf.setBackend('cpu');
+             await faceapi.tf.ready();
+             console.log("✅ Motor CPU activado (Seguro)");
+          }
         }
         
         await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
