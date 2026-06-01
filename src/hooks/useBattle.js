@@ -36,7 +36,7 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
     const s = r.current;
     s.ended = true;
     s.cleanupAnalysis?.(); 
-    if (s.cleanupTimer) clearInterval(s.cleanupTimer); // CORRECCIÓN AQUÍ
+    if (s.cleanupTimer) clearInterval(s.cleanupTimer);
     s.localStream?.getTracks().forEach(t => t.stop());
     s.pc?.close();
     s.channel?.unsubscribe();
@@ -62,7 +62,7 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
     if (s.ended) return;
     s.ended = true;
     s.cleanupAnalysis?.();
-    if (s.cleanupTimer) clearInterval(s.cleanupTimer); // CORRECCIÓN AQUÍ
+    if (s.cleanupTimer) clearInterval(s.cleanupTimer);
 
     const myAvg = Math.round(s.myScores.reduce((a, b) => a + b, 0) / Math.max(s.myScores.length, 1));
     const oppAvg = Math.round(s.oppScores.reduce((a, b) => a + b, 0) / Math.max(s.oppScores.length, 1));
@@ -107,7 +107,6 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
     }, 500);
 
     let remaining = BATTLE_DURATION;
-    // AQUÍ SE GUARDA EL ID DEL INTERVALO
     s.cleanupTimer = setInterval(() => {
       remaining--;
       setTimer(remaining);
@@ -182,7 +181,7 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
       if (s.ended) return;
       s.ended = true;
       s.cleanupAnalysis?.();
-      if (s.cleanupTimer) clearInterval(s.cleanupTimer); // CORRECCIÓN AQUÍ
+      if (s.cleanupTimer) clearInterval(s.cleanupTimer);
 
       const myAvg = Math.round(s.myScores.reduce((a, b) => a + b, 0) / Math.max(s.myScores.length, 1));
       const oppAvg = Math.round(payload.myAvg);
@@ -199,10 +198,18 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
     channel.subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
         if (host) {
-          const offer = await pc.createOffer();
-          await pc.setLocalDescription(offer);
-          channel.send({ type: 'broadcast', event: 'signal', payload: { type: 'offer', sdp: offer.sdp } });
+          // CORRECCIÓN: Retraso de 1.5s para evitar que la Oferta SDP se pierda en el aire
+          setTimeout(async () => {
+             try {
+               const offer = await pc.createOffer();
+               await pc.setLocalDescription(offer);
+               channel.send({ type: 'broadcast', event: 'signal', payload: { type: 'offer', sdp: offer.sdp } });
+             } catch (err) {
+               console.error("Error enviando oferta SDP:", err);
+             }
+          }, 1500);
         }
+        // Iniciar el temporizador después de asegurar la conexión
         setTimeout(() => startBattle(), 3000);
       }
     });
@@ -215,10 +222,15 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
       await supabase.from('battle_queue').delete().eq('local_id', localId);
     } catch { /* ignore cleanup errors */ }
 
+    // CORRECCIÓN ANTI-ZOMBIS: Ignorar usuarios que lleven esperando más de 2 minutos
+    const twoMinsAgo = new Date(Date.now() - 2 * 60000).toISOString();
+
     const { data: waiting } = await supabase
       .from('battle_queue')
       .select('id, local_id, nickname')
       .eq('status', 'waiting')
+      .neq('local_id', localId) // Evitar emparejarnos con nosotros mismos
+      .gt('created_at', twoMinsAgo) 
       .order('created_at', { ascending: true })
       .limit(1);
 
