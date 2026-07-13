@@ -26,6 +26,11 @@ export default function Battle() {
     battle.findMatch();
   };
 
+  const handleCancelMatchmaking = () => {
+    battle.cancelMatchmaking();
+    handleHome();
+  };
+
   const handleHome = () => navigate('/');
 
   return (
@@ -107,8 +112,14 @@ export default function Battle() {
         </div>
       )}
 
+      {battle.connectionError && battle.phase === 'idle' && (
+        <div className="mb-4 rounded-2xl border-4 border-red-300 bg-red-50 p-4 text-center animate-in fade-in duration-300">
+          <p className="font-bold text-red-600">{battle.connectionError}</p>
+        </div>
+      )}
+
       {battle.phase === 'searching' && (
-        <WaitingRoom onCancel={() => { battle.cancelMatchmaking(); handleHome(); }} />
+        <WaitingRoom onCancel={handleCancelMatchmaking} />
       )}
 
       {(battle.phase === 'connecting' || battle.phase === 'inProgress') && (

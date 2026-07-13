@@ -4,6 +4,10 @@ import { supabase } from '../supabase';
 const ICE_SERVERS = [
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'stun:stun2.l.google.com:19302' },
+  { urls: 'stun:stun3.l.google.com:19302' },
+  { urls: 'stun:stun4.l.google.com:19302' },
+  { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
 ];
 
 const BATTLE_DURATION = 45;
@@ -19,6 +23,7 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
   const [myAvgFem, setMyAvgFem] = useState(0);
   const [oppAvgFem, setOppAvgFem] = useState(0);
   const [isHost, setIsHost] = useState(false);
+  const [connectionError, setConnectionError] = useState(null);
 
   const r = useRef({
     battleId: null,
@@ -49,6 +54,7 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
     setOppFem(0);
     setMyAvgFem(0);
     setOppAvgFem(0);
+    setConnectionError(null);
     s.myScores = [];
     s.oppScores = [];
     s.battleId = null;
@@ -195,10 +201,37 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
       setPhase('completed');
     });
 
+    let battleStarted = false;
+    const safeStartBattle = () => {
+      if (battleStarted) return;
+      battleStarted = true;
+      startBattle();
+    };
+
+    // Máximo 15s de espera para la conexión ICE, luego arranca igual
+    const iceTimeout = setTimeout(() => {
+      if (!battleStarted) {
+        console.warn('Tiempo de espera ICE agotado, iniciando batalla de todas formas');
+        safeStartBattle();
+      }
+    }, 15000);
+
+    pc.oniceconnectionstatechange = () => {
+      setConnectionError(null);
+      const state = pc.iceConnectionState;
+      if (state === 'connected' || state === 'completed') {
+        clearTimeout(iceTimeout);
+        safeStartBattle();
+      } else if (state === 'failed') {
+        clearTimeout(iceTimeout);
+        setConnectionError('No se pudo establecer conexión con el rival. Verifica tu conexión de red.');
+        cleanup();
+      }
+    };
+
     channel.subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
         if (host) {
-          // CORRECCIÓN: Retraso de 1.5s para evitar que la Oferta SDP se pierda en el aire
           setTimeout(async () => {
              try {
                const offer = await pc.createOffer();
@@ -209,11 +242,9 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
              }
           }, 1500);
         }
-        // Iniciar el temporizador después de asegurar la conexión
-        setTimeout(() => startBattle(), 3000);
       }
     });
-  }, [videoRef, startBattle, finishBattle]);
+  }, [videoRef, startBattle, finishBattle, cleanup]);
 
   const findMatch = useCallback(async () => {
     setPhase('searching');
@@ -290,7 +321,7 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
   }, []);
 
   return {
-    phase, opponent, timer, myFem, oppFem, myAvgFem, oppAvgFem, remoteStream, winner, isHost,
+    phase, opponent, timer, myFem, oppFem, myAvgFem, oppAvgFem, remoteStream, winner, isHost, connectionError,
     findMatch, cancelMatchmaking, cleanup,
     BATTLE_DURATION,
   };

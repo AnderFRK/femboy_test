@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { Camera, RefreshCw } from 'lucide-react'; // <-- Agregamos los iconos aquí
+import { ArrowLeft, Camera, RefreshCw } from 'lucide-react';
 import { useFaceMorphAnalyzer } from '../../hooks/useFaceMorphAnalyzer';
 import useUserIdentity from '../../hooks/useUserIdentity';
 import useAnalysisHistory from '../../hooks/useAnalysisHistory';
@@ -21,7 +21,7 @@ function getResultImage(femPercentage, mascPercentage) {
   return '/gigachad.jpg';
 }
 
-export default function ScannerScreen() {
+export default function ScannerScreen({ onBack }) {
   const videoRef = useRef(null);
   const { isModelLoaded, result, isScanning, analyzeFace, resetScanner } = useFaceMorphAnalyzer(videoRef);
   const { usuario } = useUserIdentity();
@@ -69,6 +69,17 @@ export default function ScannerScreen() {
   return (
     <div className="w-full max-w-2xl rounded-3xl border-4 border-[#f7c9f2] bg-white p-6 sm:p-10 shadow-xl flex flex-col justify-between z-10 relative min-h-[calc(100vh-6rem)] text-center">
       <div className="flex-1 flex flex-col items-center justify-center w-full">
+        
+        {/* BOTÓN VOLVER */}
+        <div className="w-full mb-4 text-left">
+          <button
+            onClick={onBack}
+            className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-pink-500 transition-colors cursor-pointer bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm hover:shadow-md border border-slate-200/50"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Volver
+          </button>
+        </div>
         
         {!isModelLoaded ? (
           <div className="py-12">

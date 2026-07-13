@@ -94,9 +94,8 @@ export function useFaceMorphAnalyzer(videoRef) {
         } else {
           onFrame({ success: false });
         }
-      } catch (err) {
+      } catch {
         // Ocultamos los errores de red en la consola continua para no asustar
-        // console.error("Error en análisis continuo:", err);
       }
     }, intervalMs);
 
