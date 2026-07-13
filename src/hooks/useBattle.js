@@ -7,7 +7,10 @@ const ICE_SERVERS = [
   { urls: 'stun:stun2.l.google.com:19302' },
   { urls: 'stun:stun3.l.google.com:19302' },
   { urls: 'stun:stun4.l.google.com:19302' },
+  { urls: 'stun:stun.voip.aebc.com:3478' },
   { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turns:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
 ];
 
 const BATTLE_DURATION = 45;
@@ -148,21 +151,37 @@ export default function useBattle({ localId, nickname, videoRef, startContinuous
     s.pc = pc;
     localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
-    pc.ontrack = (e) => setRemoteStream(e.streams[0]);
+    const handleRemoteTrack = (e) => {
+      if (e.streams?.[0]) {
+        setRemoteStream(e.streams[0]);
+      }
+    };
+    pc.ontrack = handleRemoteTrack;
+    pc.addEventListener('track', handleRemoteTrack);
 
     channel.on('broadcast', { event: 'signal' }, async ({ payload }) => {
-      try {
-        if (payload.type === 'offer') {
+      if (payload.type === 'offer') {
+        try {
           await pc.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: payload.sdp }));
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
           channel.send({ type: 'broadcast', event: 'signal', payload: { type: 'answer', sdp: answer.sdp } });
-        } else if (payload.type === 'answer') {
-          await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: payload.sdp }));
-        } else if (payload.type === 'ice') {
-          await pc.addIceCandidate(new RTCIceCandidate(payload.candidate));
+        } catch (err) {
+          console.error('Error handling offer:', err);
         }
-      } catch { /* ignore signaling errors */ }
+      } else if (payload.type === 'answer') {
+        try {
+          await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: payload.sdp }));
+        } catch (err) {
+          console.error('Error handling answer:', err);
+        }
+      } else if (payload.type === 'ice') {
+        try {
+          await pc.addIceCandidate(new RTCIceCandidate(payload.candidate));
+        } catch (err) {
+          console.error('Error handling ICE candidate:', err);
+        }
+      }
     });
 
     pc.onicecandidate = (e) => {

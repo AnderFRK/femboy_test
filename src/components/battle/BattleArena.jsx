@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PhoneOff } from 'lucide-react';
 import FemboySpinner from '../ui/FemboySpinner';
 
@@ -13,10 +13,14 @@ export default function BattleArena({
   phase,
 }) {
   const remoteVideoRef = useRef(null);
+  const [remoteVideoReady, setRemoteVideoReady] = useState(false);
 
   useEffect(() => {
     if (remoteVideoRef.current && remoteStream) {
       remoteVideoRef.current.srcObject = remoteStream;
+      setRemoteVideoReady(true);
+    } else {
+      setRemoteVideoReady(false);
     }
   }, [remoteStream]);
 
@@ -73,14 +77,21 @@ export default function BattleArena({
           </div>
           <div className="aspect-[4/3] bg-slate-900 relative flex items-center justify-center">
             {!remoteStream ? (
-              <FemboySpinner text="conectando video" />
-            ) : (
-              <video
-                ref={remoteVideoRef}
-                autoPlay playsInline
-                className="h-full w-full object-cover"
-              />
-            )}
+              <div className="flex flex-col items-center gap-2 text-white/80">
+                <FemboySpinner text="conectando video" />
+                <span className="text-xs font-medium">Esperando cámara del rival...</span>
+              </div>
+            ) : !remoteVideoReady ? (
+              <div className="flex flex-col items-center gap-2 text-white/80">
+                <FemboySpinner text="cargando video" />
+              </div>
+            ) : null}
+            <video
+              ref={remoteVideoRef}
+              autoPlay muted playsInline
+              className={`h-full w-full object-cover ${!remoteStream ? 'hidden' : ''}`}
+              onLoadedData={() => setRemoteVideoReady(true)}
+            />
           </div>
           <div className="p-4">
             <div className="flex justify-between items-center mb-1">
